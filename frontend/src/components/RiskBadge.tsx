@@ -1,13 +1,17 @@
 import type { RiskResponse } from '../api/client'
 
-const COLORS: Record<string, string> = {
-  Low:    'bg-green-100 text-green-700 border-green-300',
-  Medium: 'bg-yellow-100 text-yellow-700 border-yellow-300',
-  High:   'bg-red-100 text-red-600 border-red-300',
+const LEVEL_CONFIG: Record<string, { bg: string; text: string; border: string; dot: string; glow?: string }> = {
+  Low:    { bg: 'bg-emerald-500/15', text: 'text-emerald-400', border: 'border-emerald-500/40', dot: 'bg-emerald-400' },
+  Medium: { bg: 'bg-amber-500/15',   text: 'text-amber-400',   border: 'border-amber-500/40',   dot: 'bg-amber-400' },
+  High:   { bg: 'bg-rose-500/15',    text: 'text-rose-400',    border: 'border-rose-500/40',     dot: 'bg-rose-500', glow: 'risk-high-pulse' },
 }
 
-const ICONS: Record<string, string> = {
-  Low: '🟢', Medium: '🟡', High: '🔴',
+const ICONS: Record<string, string> = { Low: '🟢', Medium: '🟡', High: '🔴' }
+
+const DESCRIPTIONS: Record<string, string> = {
+  Low: 'Stable portfolio with minimal price swings',
+  Medium: 'Moderate volatility, balanced risk/reward',
+  High: 'High volatility — significant price swings possible',
 }
 
 interface Props {
@@ -16,28 +20,45 @@ interface Props {
 
 export default function RiskBadge({ risk }: Props) {
   if (!risk) return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-      <h2 className="text-lg font-bold text-slate-800 mb-2">Risk Assessment</h2>
-      <p className="text-slate-400 text-sm">Loading risk data...</p>
+    <div className="bg-slate-800/60 backdrop-blur-sm rounded-2xl border border-slate-700/50 shadow-2xl p-6 flex items-center justify-center min-h-[200px]">
+      <div className="text-center">
+        <div className="flex justify-center mb-3">
+          <span className="spinner" />
+        </div>
+        <p className="text-slate-500 text-sm">Loading risk data...</p>
+      </div>
     </div>
   )
 
+  const cfg = LEVEL_CONFIG[risk.overall] ?? LEVEL_CONFIG.Medium
+
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-      <h2 className="text-lg font-bold text-slate-800 mb-4">Risk Assessment</h2>
-      <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 font-bold text-lg mb-4 ${COLORS[risk.overall]}`}>
-        {ICONS[risk.overall]} {risk.overall} Risk
+    <div className="bg-slate-800/60 backdrop-blur-sm rounded-2xl border border-slate-700/50 shadow-2xl p-6">
+      <h2 className="text-lg font-bold text-white mb-4">Risk Assessment</h2>
+
+      <div className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 mb-4 ${cfg.bg} ${cfg.border} ${cfg.glow ?? ''}`}>
+        <span className="text-2xl">{ICONS[risk.overall]}</span>
+        <div>
+          <p className={`text-xl font-bold ${cfg.text}`}>{risk.overall} Risk</p>
+          <p className="text-slate-500 text-xs mt-0.5">{DESCRIPTIONS[risk.overall]}</p>
+        </div>
       </div>
-      <div className="grid grid-cols-2 gap-2 mt-2 sm:grid-cols-3">
-        {Object.entries(risk.breakdown).map(([ticker, level]) => (
-          <div key={ticker} className={`flex items-center justify-between px-3 py-2 rounded-lg border text-sm ${COLORS[level]}`}>
-            <span className="font-bold">{ticker}</span>
-            <span>{level}</span>
-          </div>
-        ))}
+
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        {Object.entries(risk.breakdown).map(([ticker, level]) => {
+          const c = LEVEL_CONFIG[level] ?? LEVEL_CONFIG.Medium
+          return (
+            <div key={ticker} className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${c.bg} ${c.border}`}>
+              <div className={`w-2 h-2 rounded-full ${c.dot} flex-shrink-0`} />
+              <span className="font-bold text-white text-xs">{ticker}</span>
+              <span className={`ml-auto text-xs font-medium ${c.text}`}>{level}</span>
+            </div>
+          )
+        })}
       </div>
-      <p className="text-slate-400 text-xs mt-3">
-        Based on 5-day price volatility (standard deviation of daily returns)
+
+      <p className="text-slate-600 text-xs mt-4">
+        Based on 5-day price volatility (std dev of daily returns)
       </p>
     </div>
   )

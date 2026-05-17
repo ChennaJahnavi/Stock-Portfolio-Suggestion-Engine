@@ -1,14 +1,22 @@
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts'
 import type { DayValue } from '../api/client'
 
 const COLORS: Record<string, string> = {
   Ethical: '#10b981',
-  Growth:  '#3b82f6',
+  Growth:  '#0ea5e9',
   Index:   '#8b5cf6',
   Quality: '#f59e0b',
-  Value:   '#ef4444',
+  Value:   '#f43f5e',
+}
+
+const tooltipStyle = {
+  backgroundColor: '#1e293b',
+  border: '1px solid #334155',
+  borderRadius: '10px',
+  color: '#e2e8f0',
+  fontSize: '13px',
 }
 
 interface Props {
@@ -18,12 +26,14 @@ interface Props {
 
 export default function ComparisonChart({ data, amount }: Props) {
   if (!data) return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center justify-center h-64">
-      <p className="text-slate-400">Loading strategy comparison...</p>
+    <div className="bg-slate-800/60 backdrop-blur-sm rounded-2xl border border-slate-700/50 shadow-2xl p-6 flex items-center justify-center h-64">
+      <div className="text-center">
+        <div className="flex justify-center mb-3"><span className="spinner" /></div>
+        <p className="text-slate-500 text-sm">Loading strategy comparison...</p>
+      </div>
     </div>
   )
 
-  // Build a unified date-keyed dataset
   const dates = new Set<string>()
   Object.values(data).forEach(arr => arr.forEach(d => dates.add(d.date)))
 
@@ -38,9 +48,9 @@ export default function ComparisonChart({ data, amount }: Props) {
   })
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-      <div className="px-6 py-4 border-b border-slate-100">
-        <h2 className="text-lg font-bold text-slate-800">Strategy Comparison</h2>
+    <div className="bg-slate-800/60 backdrop-blur-sm rounded-2xl border border-slate-700/50 shadow-2xl overflow-hidden">
+      <div className="px-6 py-4 border-b border-slate-700/50">
+        <h2 className="text-lg font-bold text-white">Strategy Comparison</h2>
         <p className="text-slate-400 text-sm mt-0.5">
           How ${amount.toLocaleString()} would have performed across all strategies over 5 days
         </p>
@@ -48,20 +58,22 @@ export default function ComparisonChart({ data, amount }: Props) {
       <div className="p-6">
         <ResponsiveContainer width="100%" height={280}>
           <LineChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#94a3b8' }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+            <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#475569' }} />
             <YAxis
-              tick={{ fontSize: 12, fill: '#94a3b8' }}
+              tick={{ fontSize: 11, fill: '#475569' }}
               tickFormatter={v => `$${(v / 1000).toFixed(1)}k`}
               domain={['auto', 'auto']}
             />
             <Tooltip
+              contentStyle={tooltipStyle}
+              labelStyle={{ color: '#94a3b8', marginBottom: 4 }}
               formatter={(v, name) => [
                 `$${Number(v).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
                 name,
               ]}
             />
-            <Legend />
+            <Legend wrapperStyle={{ color: '#94a3b8', fontSize: '12px' }} />
             {Object.keys(data).map(strategy => (
               <Line
                 key={strategy}
@@ -70,7 +82,7 @@ export default function ComparisonChart({ data, amount }: Props) {
                 stroke={COLORS[strategy]}
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 5 }}
+                activeDot={{ r: 5, strokeWidth: 0 }}
               />
             ))}
           </LineChart>

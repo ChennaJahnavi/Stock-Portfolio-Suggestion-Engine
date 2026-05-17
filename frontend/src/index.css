@@ -1,12 +1,37 @@
 @import "tailwindcss";
 
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #334155 transparent;
+}
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+*::-webkit-scrollbar-thumb:hover { background: #475569; }
+
 body {
   margin: 0;
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
-  background-color: #f8fafc;
-  color: #1e293b;
+  color: #e2e8f0;
 }
 
-#root {
-  min-height: 100vh;
+#root { min-height: 100vh; }
+
+@keyframes pulse-glow-red {
+  0%, 100% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+  50%       { box-shadow: 0 0 24px rgba(239, 68, 68, 0.7); }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.risk-high-pulse { animation: pulse-glow-red 2s ease-in-out infinite; }
+
+.spinner {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #818cf8;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
 }

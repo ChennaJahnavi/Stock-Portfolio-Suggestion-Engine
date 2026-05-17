@@ -23,7 +23,6 @@ export default function App() {
   const [errors, setErrors] = useState<{ amount?: string; strategies?: string }>({})
   const [loading, setLoading] = useState(false)
 
-  // Results state
   const [portfolio, setPortfolio] = useState<PortfolioResponse | null>(null)
   const [history, setHistory] = useState<HistoryResponse | null>(null)
   const [risk, setRisk] = useState<RiskResponse | null>(null)
@@ -47,7 +46,6 @@ export default function App() {
       setScreen('results')
       const tickers = p.stocks.map(s => s.ticker)
       saveRecord({ amount, strategies, tickers, totalValue: amount })
-      // Fire parallel requests for extra data
       const [h, r, n, c] = await Promise.all([
         fetchHistory(tickers),
         fetchRisk(tickers),
@@ -81,37 +79,56 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div
+      className="min-h-screen relative"
+      style={{ background: 'radial-gradient(ellipse at 15% 10%, #1e1b4b 0%, #0f172a 45%, #020617 100%)' }}
+    >
+      {/* Dot grid overlay */}
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(99,102,241,0.12) 1px, transparent 0)',
+          backgroundSize: '32px 32px',
+        }}
+      />
+
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 shadow-sm">
+      <header className="relative z-20 border-b border-slate-700/50 bg-slate-900/70 backdrop-blur-md shadow-xl">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">📈</span>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 text-xl">
+              📈
+            </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-800 leading-tight">Portfolio Suggestion Engine</h1>
-              <p className="text-slate-400 text-xs">CMPE 285 · Stock Investment Tool</p>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent leading-tight">
+                Portfolio Suggestion Engine
+              </h1>
+              <p className="text-slate-500 text-xs">CMPE 285 · Stock Investment Tool</p>
             </div>
           </div>
           {screen === 'results' && (
             <button
               onClick={reset}
-              className="text-sm text-blue-500 hover:text-blue-700 font-semibold transition-colors"
+              className="flex items-center gap-1.5 text-sm text-indigo-400 hover:text-indigo-300 font-semibold transition-all duration-150 hover:gap-2.5"
             >
-              ← New Portfolio
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              New Portfolio
             </button>
           )}
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main className="relative z-10 max-w-5xl mx-auto px-4 py-8">
         {screen === 'input' ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Input Form */}
-            <div className="lg:col-span-2 space-y-6">
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
+            <div className="lg:col-span-2">
+              <div className="bg-slate-800/60 backdrop-blur-sm rounded-2xl border border-slate-700/50 shadow-2xl p-6 space-y-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-800">Build Your Portfolio</h2>
-                  <p className="text-slate-500 text-sm mt-1">
+                  <h2 className="text-2xl font-bold text-white">Build Your Portfolio</h2>
+                  <p className="text-slate-400 text-sm mt-1">
                     Enter your investment amount and choose up to 2 strategies.
                   </p>
                 </div>
@@ -120,24 +137,52 @@ export default function App() {
                 <button
                   onClick={generate}
                   disabled={loading}
-                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold rounded-lg transition-colors text-base"
+                  className={`w-full py-3.5 rounded-xl font-bold text-base text-white transition-all duration-200 flex items-center justify-center gap-2
+                    ${loading
+                      ? 'bg-indigo-900/60 cursor-wait'
+                      : 'bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 hover:shadow-lg hover:shadow-indigo-500/30 active:scale-[0.99]'
+                    }`}
                 >
-                  {loading ? 'Generating Portfolio...' : 'Generate Portfolio →'}
+                  {loading ? (
+                    <>
+                      <span className="spinner" />
+                      Generating Portfolio...
+                    </>
+                  ) : (
+                    <>
+                      Generate Portfolio
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
 
-            {/* Past Portfolios Sidebar */}
+            {/* Sidebar */}
             <div className="space-y-4">
               <PastPortfolios onReload={reloadRecord} />
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                <p className="text-blue-700 font-semibold text-sm mb-1">How it works</p>
-                <ul className="text-blue-600 text-xs space-y-1">
-                  <li>1. Enter your investment amount ($5k min)</li>
-                  <li>2. Pick 1 or 2 investing strategies</li>
-                  <li>3. Get a live portfolio with real prices</li>
-                  <li>4. Adjust allocation with sliders</li>
-                  <li>5. Review risk, news, and trend charts</li>
+              <div className="bg-indigo-900/30 border border-indigo-500/30 rounded-2xl p-4 backdrop-blur-sm">
+                <p className="text-indigo-300 font-semibold text-sm mb-2 flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  How it works
+                </p>
+                <ul className="text-slate-400 text-xs space-y-1.5">
+                  {[
+                    'Enter your investment amount ($5k min)',
+                    'Pick 1 or 2 investing strategies',
+                    'Get a live portfolio with real prices',
+                    'Adjust allocation with sliders',
+                    'Review risk, news, and trend charts',
+                  ].map((step, i) => (
+                    <li key={i} className="flex items-start gap-1.5">
+                      <span className="text-indigo-400 font-bold mt-0.5 flex-shrink-0">{i + 1}.</span>
+                      {step}
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
@@ -146,31 +191,33 @@ export default function App() {
           portfolio && (
             <div className="space-y-6">
               {/* Summary banner */}
-              <div className="bg-blue-600 text-white rounded-xl p-5 flex flex-wrap items-center gap-4">
-                <div>
-                  <p className="text-blue-200 text-sm">Investment</p>
-                  <p className="text-2xl font-bold">${portfolio.total.toLocaleString()}</p>
-                </div>
-                <div>
-                  <p className="text-blue-200 text-sm">Strategies</p>
-                  <p className="text-2xl font-bold">{portfolio.strategies.join(' + ')}</p>
-                </div>
-                <div>
-                  <p className="text-blue-200 text-sm">Stocks / ETFs</p>
-                  <p className="text-2xl font-bold">{portfolio.stocks.length}</p>
+              <div className="bg-gradient-to-r from-indigo-900/80 to-blue-900/80 backdrop-blur-sm border border-indigo-500/30 rounded-2xl p-6 shadow-2xl">
+                <p className="text-indigo-400 text-xs font-semibold uppercase tracking-widest mb-3">Portfolio Summary</p>
+                <div className="flex flex-wrap gap-8">
+                  <div>
+                    <p className="text-slate-400 text-xs mb-0.5">Investment</p>
+                    <p className="text-3xl font-bold text-white">${portfolio.total.toLocaleString()}</p>
+                  </div>
+                  <div className="w-px bg-indigo-700/40 hidden sm:block" />
+                  <div>
+                    <p className="text-slate-400 text-xs mb-0.5">Strategies</p>
+                    <p className="text-3xl font-bold text-white">{portfolio.strategies.join(' + ')}</p>
+                  </div>
+                  <div className="w-px bg-indigo-700/40 hidden sm:block" />
+                  <div>
+                    <p className="text-slate-400 text-xs mb-0.5">Stocks / ETFs</p>
+                    <p className="text-3xl font-bold text-white">{portfolio.stocks.length}</p>
+                  </div>
                 </div>
               </div>
 
-              {/* Allocation table */}
               <AllocationTable stocks={portfolio.stocks} total={portfolio.total} />
 
-              {/* Charts row */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <PortfolioChart data={history?.portfolioTrend ?? []} total={portfolio.total} />
                 <RiskBadge risk={risk} />
               </div>
 
-              {/* Comparison + News */}
               <ComparisonChart data={compare} amount={portfolio.total} />
               <NewsFeed news={news} tickers={portfolio.stocks.map(s => s.ticker)} />
             </div>
