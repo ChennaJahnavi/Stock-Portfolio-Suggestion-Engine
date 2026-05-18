@@ -39,8 +39,16 @@ export interface RiskResponse {
   breakdown: Record<string, string>
 }
 
-export const fetchPortfolio = (amount: number, strategies: string[]) =>
-  api.post<PortfolioResponse>('/portfolio', { amount, strategies }).then(r => r.data)
+export const fetchPortfolio = (
+  amount: number,
+  strategies: string[],
+  strategyWeights?: Record<string, number>,
+) =>
+  api.post<PortfolioResponse>('/portfolio', {
+    amount,
+    strategies,
+    ...(strategyWeights ? { strategy_weights: strategyWeights } : {}),
+  }).then(r => r.data)
 
 export const fetchHistory = (tickers: string[], amount: number) =>
   api.get<HistoryResponse>('/history', {

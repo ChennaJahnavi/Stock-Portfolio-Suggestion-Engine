@@ -7,6 +7,7 @@ import PortfolioChart from './components/PortfolioChart'
 import RiskBadge from './components/RiskBadge'
 import NewsFeed from './components/NewsFeed'
 import ComparisonChart from './components/ComparisonChart'
+import SectorBreakdown from './components/SectorBreakdown'
 import PastPortfolios from './components/PastPortfolios'
 import {
   fetchPortfolio, fetchHistory, fetchNews, fetchRisk, fetchCompare,
@@ -20,6 +21,7 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>('input')
   const [amount, setAmount] = useState<number>(0)
   const [strategies, setStrategies] = useState<string[]>([])
+  const [strategySplit, setStrategySplit] = useState<number>(50)
   const [errors, setErrors] = useState<{ amount?: string; strategies?: string }>({})
   const [loading, setLoading] = useState(false)
 
@@ -41,7 +43,10 @@ export default function App() {
     if (!validate()) return
     setLoading(true)
     try {
-      const p = await fetchPortfolio(amount, strategies)
+      const strategyWeights = strategies.length === 2
+        ? { [strategies[0]]: strategySplit, [strategies[1]]: 100 - strategySplit }
+        : undefined
+      const p = await fetchPortfolio(amount, strategies, strategyWeights)
       setPortfolio(p)
       setScreen('results')
       const tickers = p.stocks.map(s => s.ticker)
@@ -73,6 +78,7 @@ export default function App() {
     setScreen('input')
     setAmount(0)
     setStrategies([])
+    setStrategySplit(50)
     setErrors({})
     setLoading(false)
     setPortfolio(null)
@@ -136,7 +142,14 @@ export default function App() {
                   </p>
                 </div>
                 <AmountInput value={amount} onChange={setAmount} error={errors.amount} />
-                <StrategyPicker selected={strategies} onChange={setStrategies} error={errors.strategies} />
+                <StrategyPicker
+                  selected={strategies}
+                  onChange={setStrategies}
+                  error={errors.strategies}
+                  split={strategySplit}
+                  onSplitChange={setStrategySplit}
+                  amount={amount}
+                />
                 <button
                   onClick={generate}
                   disabled={loading}
@@ -223,6 +236,7 @@ export default function App() {
               </div>
 
               <ComparisonChart data={compare} amount={portfolio.total} />
+              <SectorBreakdown stocks={portfolio.stocks} />
               </div>
 
               <aside className="lg:sticky lg:top-6">

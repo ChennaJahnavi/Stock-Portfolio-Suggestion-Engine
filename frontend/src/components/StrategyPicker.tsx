@@ -40,9 +40,12 @@ interface Props {
   selected: string[]
   onChange: (s: string[]) => void
   error?: string
+  split: number
+  onSplitChange: (v: number) => void
+  amount: number
 }
 
-export default function StrategyPicker({ selected, onChange, error }: Props) {
+export default function StrategyPicker({ selected, onChange, error, split, onSplitChange, amount }: Props) {
   const toggle = (id: string) => {
     if (selected.includes(id)) {
       onChange(selected.filter(s => s !== id))
@@ -50,6 +53,12 @@ export default function StrategyPicker({ selected, onChange, error }: Props) {
       onChange([...selected, id])
     }
   }
+
+  const showSplit = selected.length === 2
+  const s0 = STRATEGIES.find(s => s.id === selected[0])
+  const s1 = STRATEGIES.find(s => s.id === selected[1])
+  const alloc0 = amount * (split / 100)
+  const alloc1 = amount * ((100 - split) / 100)
 
   return (
     <div className="flex flex-col gap-2">
@@ -92,6 +101,32 @@ export default function StrategyPicker({ selected, onChange, error }: Props) {
           )
         })}
       </div>
+
+      {showSplit && s0 && s1 && (
+        <div className="mt-2 bg-slate-900/50 border border-slate-700 rounded-xl p-4 space-y-3">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Strategy Split</p>
+          <div className="flex items-center justify-between text-sm">
+            <span className={`font-semibold ${s0.labelColor}`}>{s0.label} — {split}%</span>
+            <span className={`font-semibold ${s1.labelColor}`}>{100 - split}% — {s1.label}</span>
+          </div>
+          <input
+            type="range"
+            min={10}
+            max={90}
+            value={split}
+            onChange={e => onSplitChange(Number(e.target.value))}
+            className="w-full h-1.5 rounded-full cursor-pointer"
+            style={{ accentColor: '#6366f1' }}
+          />
+          {amount >= 5000 && (
+            <div className="flex items-center justify-between text-xs text-slate-500 font-mono">
+              <span>${alloc0.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>
+              <span>${alloc1.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>
+            </div>
+          )}
+        </div>
+      )}
+
       {error && <p className="text-rose-400 text-sm">{error}</p>}
     </div>
   )

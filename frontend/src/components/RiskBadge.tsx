@@ -44,14 +44,14 @@ export default function RiskBadge({ risk }: Props) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+      <div className="flex flex-wrap gap-2">
         {Object.entries(risk.breakdown).map(([ticker, level]) => {
           const c = LEVEL_CONFIG[level] ?? LEVEL_CONFIG.Medium
           return (
-            <div key={ticker} className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${c.bg} ${c.border}`}>
+            <div key={ticker} className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border ${c.bg} ${c.border}`}>
               <div className={`w-2 h-2 rounded-full ${c.dot} flex-shrink-0`} />
               <span className="font-bold text-white text-xs">{ticker}</span>
-              <span className={`ml-auto text-xs font-medium ${c.text}`}>{level}</span>
+              <span className={`text-xs font-semibold ${c.text}`}>{level}</span>
             </div>
           )
         })}
