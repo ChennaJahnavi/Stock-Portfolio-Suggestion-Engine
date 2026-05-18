@@ -19,8 +19,9 @@ export default function AllocationTable({ stocks, total }: Props) {
   const [weights, setWeights] = useState<Record<string, number>>({})
 
   useEffect(() => {
-    const even = 100 / stocks.length
-    setWeights(Object.fromEntries(stocks.map(s => [s.ticker, Math.round(even * 10) / 10])))
+    setWeights(
+      Object.fromEntries(stocks.map(s => [s.ticker, s.weight])),
+    )
   }, [stocks])
 
   const handleSlider = (ticker: string, val: number) => {
