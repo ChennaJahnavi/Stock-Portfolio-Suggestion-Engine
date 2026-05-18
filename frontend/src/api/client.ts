@@ -42,8 +42,10 @@ export interface RiskResponse {
 export const fetchPortfolio = (amount: number, strategies: string[]) =>
   api.post<PortfolioResponse>('/portfolio', { amount, strategies }).then(r => r.data)
 
-export const fetchHistory = (tickers: string[]) =>
-  api.get<HistoryResponse>('/history', { params: { tickers: tickers.join(',') } }).then(r => r.data)
+export const fetchHistory = (tickers: string[], amount: number) =>
+  api.get<HistoryResponse>('/history', {
+    params: { tickers: tickers.join(','), amount },
+  }).then(r => r.data)
 
 export const fetchNews = (tickers: string[]) =>
   api.get<Record<string, NewsItem[]>>('/news', { params: { tickers: tickers.join(',') } }).then(r => r.data)

@@ -49,7 +49,7 @@ export default function App() {
       const tickers = p.stocks.map(s => s.ticker)
       saveRecord({ amount, strategies, tickers, totalValue: amount })
       const [h, r, n, c] = await Promise.all([
-        fetchHistory(tickers),
+        fetchHistory(tickers, amount),
         fetchRisk(tickers),
         fetchNews(tickers),
         fetchCompare(amount),
