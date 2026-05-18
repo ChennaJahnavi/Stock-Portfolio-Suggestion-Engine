@@ -16,9 +16,11 @@ import { saveRecord, type PortfolioRecord } from './services/history'
 
 type Screen = 'input' | 'results'
 
+const DEFAULT_AMOUNT = 10000
+
 export default function App() {
   const [screen, setScreen] = useState<Screen>('input')
-  const [amount, setAmount] = useState<number>(10000)
+  const [amount, setAmount] = useState<number>(DEFAULT_AMOUNT)
   const [strategies, setStrategies] = useState<string[]>([])
   const [errors, setErrors] = useState<{ amount?: string; strategies?: string }>({})
   const [loading, setLoading] = useState(false)
@@ -71,6 +73,10 @@ export default function App() {
 
   const reset = () => {
     setScreen('input')
+    setAmount(DEFAULT_AMOUNT)
+    setStrategies([])
+    setErrors({})
+    setLoading(false)
     setPortfolio(null)
     setHistory(null)
     setRisk(null)
