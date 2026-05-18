@@ -109,7 +109,6 @@ export default function App() {
               <h1 className="text-xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent leading-tight">
                 Portfolio Suggestion Engine
               </h1>
-              <p className="text-slate-500 text-xs">CMPE 285 · Stock Investment Tool</p>
             </div>
           </div>
           {screen === 'results' && (
