@@ -16,11 +16,9 @@ import { saveRecord, type PortfolioRecord } from './services/history'
 
 type Screen = 'input' | 'results'
 
-const DEFAULT_AMOUNT = 10000
-
 export default function App() {
   const [screen, setScreen] = useState<Screen>('input')
-  const [amount, setAmount] = useState<number>(DEFAULT_AMOUNT)
+  const [amount, setAmount] = useState<number>(0)
   const [strategies, setStrategies] = useState<string[]>([])
   const [errors, setErrors] = useState<{ amount?: string; strategies?: string }>({})
   const [loading, setLoading] = useState(false)
@@ -194,7 +192,8 @@ export default function App() {
           </div>
         ) : (
           portfolio && (
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+              <div className="lg:col-span-2 space-y-6">
               {/* Summary banner */}
               <div className="bg-gradient-to-r from-indigo-900/80 to-blue-900/80 backdrop-blur-sm border border-indigo-500/30 rounded-2xl p-6 shadow-2xl">
                 <p className="text-indigo-400 text-xs font-semibold uppercase tracking-widest mb-3">Portfolio Summary</p>
@@ -224,7 +223,11 @@ export default function App() {
               </div>
 
               <ComparisonChart data={compare} amount={portfolio.total} />
-              <NewsFeed news={news} tickers={portfolio.stocks.map(s => s.ticker)} />
+              </div>
+
+              <aside className="lg:sticky lg:top-6">
+                <NewsFeed news={news} tickers={portfolio.stocks.map(s => s.ticker)} />
+              </aside>
             </div>
           )
         )}

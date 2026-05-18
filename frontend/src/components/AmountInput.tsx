@@ -36,7 +36,7 @@ export default function AmountInput({ value, onChange, error }: Props) {
           step={100}
           value={value || ''}
           onChange={e => onChange(Number(e.target.value))}
-          placeholder="Minimum $5,000"
+          placeholder="5000"
           className="w-full pl-8 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white placeholder:text-slate-600 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
         />
       </div>
