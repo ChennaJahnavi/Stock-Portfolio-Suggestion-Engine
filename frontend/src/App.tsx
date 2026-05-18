@@ -73,7 +73,7 @@ export default function App() {
 
   const reset = () => {
     setScreen('input')
-    setAmount(DEFAULT_AMOUNT)
+    setAmount(0)
     setStrategies([])
     setErrors({})
     setLoading(false)
